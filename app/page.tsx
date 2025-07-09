@@ -1,10 +1,10 @@
 "use client"
 
-import { useState } from "react"
-import { VideoPlayer } from "@/components/video-player"
 import { FileUpload } from "@/components/file-upload"
 import { ThemeProvider } from "@/components/theme-provider"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { VideoPlayer } from "@/components/video-player"
+import { useState } from "react"
 
 export default function Home() {
   const [currentVideo, setCurrentVideo] = useState<{
@@ -27,7 +27,7 @@ export default function Home() {
         res: 720,
       },
     ],
-    poster: "/placeholder.svg?height=720&width=1280",
+    poster: "/placeholderImage.jpg?height=720&width=1280",
     title: "Big Buck Bunny",
     videoId: "big-buck-bunny",
   })
@@ -66,7 +66,7 @@ export default function Home() {
             poster={currentVideo.poster}
             title={currentVideo.title}
             videoId={currentVideo.videoId}
-            watermark="/placeholder.svg?height=40&width=120"
+            watermark="/placeholderImage.jpg?height=40&width=120"
           />
 
           

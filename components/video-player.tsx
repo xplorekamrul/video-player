@@ -2,18 +2,18 @@
 
 import type React from "react"
 
-import { useEffect, useRef, useState, useCallback } from "react"
-import { VideoControls } from "./video-controls"
-import { SettingsMenu } from "./settings-menu"
-import { PlaylistMenu } from "./playlist-menu"
-import { useVideoPlayer } from "@/hooks/use-video-player"
+import { useClickOutside } from "@/hooks/use-click-outside"
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts"
 import { useMobileGestures } from "@/hooks/use-mobile-gestures"
+import { useVideoPlayer } from "@/hooks/use-video-player"
 import { useVideoResume } from "@/hooks/use-video-resume"
-import { useClickOutside } from "@/hooks/use-click-outside"
-import { LoadingSpinner } from "./loading-spinner"
 import { cn } from "@/lib/utils"
-import { SkipForward, SkipBack } from "lucide-react"
+import { SkipBack, SkipForward } from "lucide-react"
+import { useCallback, useEffect, useRef, useState } from "react"
+import { LoadingSpinner } from "./loading-spinner"
+import { PlaylistMenu } from "./playlist-menu"
+import { SettingsMenu } from "./settings-menu"
+import { VideoControls } from "./video-controls"
 
 interface VideoSource {
   src: string
@@ -475,7 +475,7 @@ export function VideoPlayer({
       {/* Watermark */}
       {watermark && (
         <div className="absolute top-4 right-4 opacity-70 pointer-events-none z-10 transition-all duration-300">
-          <img src={watermark || "/placeholder.svg"} alt="Watermark" className="h-8 drop-shadow-lg" />
+          <img src={watermark || "/placeholderImage.jpg"} alt="Watermark" className="h-8 drop-shadow-lg" />
         </div>
       )}
 
