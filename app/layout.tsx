@@ -2,9 +2,9 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Video App',
-  description: 'Created with next & typescript',
-  creator: 'Md kamruzzaman',
+  title: 'Video Player',
+  description: 'Created with Next.js & typescript',
+  creator: 'Md Kamruzzaman',
 }
 
 export default function RootLayout({

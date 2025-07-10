@@ -219,6 +219,13 @@ export function useVideoPlayer(videoRef: RefObject<HTMLVideoElement>) {
     const handleRateChange = () => setPlaybackRate(video.playbackRate)
     const handleProgress = () => setBuffered(video.buffered)
 
+    // Add loadedmetadata handler to reset states
+    const handleLoadedMetadata = () => {
+      setCurrentTime(0)
+      setDuration(video.duration)
+      setIsLoading(false)
+    }
+
     const handleFullscreenChange = () => {
       setIsFullscreen(!!document.fullscreenElement)
     }
@@ -231,6 +238,7 @@ export function useVideoPlayer(videoRef: RefObject<HTMLVideoElement>) {
     video.addEventListener("pause", handlePause)
     video.addEventListener("timeupdate", handleTimeUpdate)
     video.addEventListener("durationchange", handleDurationChange)
+    video.addEventListener("loadedmetadata", handleLoadedMetadata) // Add this
     video.addEventListener("volumechange", handleVolumeChange)
     video.addEventListener("loadstart", handleLoadStart)
     video.addEventListener("canplay", handleCanPlay)
@@ -249,6 +257,7 @@ export function useVideoPlayer(videoRef: RefObject<HTMLVideoElement>) {
       video.removeEventListener("pause", handlePause)
       video.removeEventListener("timeupdate", handleTimeUpdate)
       video.removeEventListener("durationchange", handleDurationChange)
+      video.removeEventListener("loadedmetadata", handleLoadedMetadata) // Add this
       video.removeEventListener("volumechange", handleVolumeChange)
       video.removeEventListener("loadstart", handleLoadStart)
       video.removeEventListener("canplay", handleCanPlay)

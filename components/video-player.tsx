@@ -2,18 +2,18 @@
 
 import type React from "react"
 
-import { useClickOutside } from "@/hooks/use-click-outside"
+import { useEffect, useRef, useState, useCallback } from "react"
+import { VideoControls } from "./video-controls"
+import { SettingsMenu } from "./settings-menu"
+import { PlaylistMenu } from "./playlist-menu"
+import { useVideoPlayer } from "@/hooks/use-video-player"
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts"
 import { useMobileGestures } from "@/hooks/use-mobile-gestures"
-import { useVideoPlayer } from "@/hooks/use-video-player"
 import { useVideoResume } from "@/hooks/use-video-resume"
-import { cn } from "@/lib/utils"
-import { SkipBack, SkipForward } from "lucide-react"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useClickOutside } from "@/hooks/use-click-outside"
 import { LoadingSpinner } from "./loading-spinner"
-import { PlaylistMenu } from "./playlist-menu"
-import { SettingsMenu } from "./settings-menu"
-import { VideoControls } from "./video-controls"
+import { cn } from "@/lib/utils"
+import { SkipForward, SkipBack } from "lucide-react"
 
 interface VideoSource {
   src: string
@@ -57,11 +57,11 @@ export function VideoPlayer({
   currentPlaylistIndex = 0,
   onPlaylistChange,
 }: VideoPlayerProps) {
-  const videoRef = useRef<HTMLVideoElement>(null) as React.RefObject<HTMLVideoElement>
-  const containerRef = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>
-  const settingsRef = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>
-  const playlistRef = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>
-  const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const settingsRef = useRef<HTMLDivElement>(null)
+  const playlistRef = useRef<HTMLDivElement>(null)
+  const controlsTimeoutRef = useRef<NodeJS.Timeout>()
 
   const [showControls, setShowControls] = useState(true)
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
@@ -77,9 +77,7 @@ export function VideoPlayer({
     amount: number
   } | null>(null)
   const [cursorVisible, setCursorVisible] = useState(true)
-  const [lastSavedTime, setLastSavedTime] = useState(0)
-  const [clickTimeout, setClickTimeout] = useState<NodeJS.Timeout | null>(null)
-  const [clickCount, setClickCount] = useState(0)
+  const [lastSavedTime, setLastSavedTime] = useState(0) // Track last saved time
 
   const {
     isPlaying,
@@ -129,9 +127,7 @@ export function VideoPlayer({
     if (!container) return
 
     const resetControlsTimeout = () => {
-      if (controlsTimeoutRef.current) {
-        clearTimeout(controlsTimeoutRef.current)
-      }
+      clearTimeout(controlsTimeoutRef.current)
       setShowControls(true)
       setCursorVisible(true)
 
@@ -158,9 +154,7 @@ export function VideoPlayer({
     }
 
     const handleMouseLeave = () => {
-      if (controlsTimeoutRef.current) {
-        clearTimeout(controlsTimeoutRef.current)
-      }
+      clearTimeout(controlsTimeoutRef.current)
       if (isFullscreen) {
         // In fullscreen, start hiding after 5 seconds when mouse leaves
         controlsTimeoutRef.current = setTimeout(() => {
@@ -183,14 +177,11 @@ export function VideoPlayer({
     container.addEventListener("mouseleave", handleMouseLeave)
     container.addEventListener("mouseenter", handleMouseEnter)
 
-    // Initial state
+    // Initial setup
     resetControlsTimeout()
 
-    // Cleanup
     return () => {
-      if (controlsTimeoutRef.current) {
-        clearTimeout(controlsTimeoutRef.current)
-      }
+      clearTimeout(controlsTimeoutRef.current)
       container.removeEventListener("mousemove", handleMouseMove)
       container.removeEventListener("mouseleave", handleMouseLeave)
       container.removeEventListener("mouseenter", handleMouseEnter)
@@ -200,9 +191,7 @@ export function VideoPlayer({
   // Handle dropdown state changes
   useEffect(() => {
     if (isSettingsOpen || isPlaylistOpen) {
-      if (controlsTimeoutRef.current) {
-        clearTimeout(controlsTimeoutRef.current)
-      }
+      clearTimeout(controlsTimeoutRef.current)
       setShowControls(true)
       setCursorVisible(true)
     }
@@ -242,26 +231,35 @@ export function VideoPlayer({
   const handleQualityChange = useCallback(
     (quality: VideoSource) => {
       if (videoRef.current && quality.src !== currentQuality.src) {
-        const currentTimeStamp = videoRef.current.currentTime
+        const currentTime = videoRef.current.currentTime
         const wasPlaying = !videoRef.current.paused
+
+        // Pause current video
+        pause()
 
         setCurrentQuality(quality)
         setIsMetadataLoaded(false)
 
-        const handleLoadedData = () => {
+        // Use a timeout to ensure state updates are processed
+        setTimeout(() => {
           if (videoRef.current) {
-            videoRef.current.currentTime = currentTimeStamp
-            if (wasPlaying) {
-              play().catch(console.error)
+            const handleLoadedData = () => {
+              if (videoRef.current) {
+                videoRef.current.currentTime = currentTime
+                if (wasPlaying) {
+                  play().catch(console.error)
+                }
+                videoRef.current.removeEventListener("loadeddata", handleLoadedData)
+              }
             }
-            videoRef.current.removeEventListener("loadeddata", handleLoadedData)
-          }
-        }
 
-        videoRef.current.addEventListener("loadeddata", handleLoadedData)
+            videoRef.current.addEventListener("loadeddata", handleLoadedData)
+            videoRef.current.load() // Force reload with new source
+          }
+        }, 50)
       }
     },
-    [currentQuality.src, play],
+    [currentQuality.src, play, pause],
   )
 
   // Enhanced PiP toggle with proper error handling
@@ -286,17 +284,21 @@ export function VideoPlayer({
   // Playlist navigation handlers
   const handleNextVideo = useCallback(() => {
     if (playlist.length > 0 && currentPlaylistIndex < playlist.length - 1) {
+      // Pause current video first
+      pause()
       clearProgress() // Clear current video progress
       onPlaylistChange?.(currentPlaylistIndex + 1)
     }
-  }, [playlist.length, currentPlaylistIndex, onPlaylistChange, clearProgress])
+  }, [playlist.length, currentPlaylistIndex, onPlaylistChange, clearProgress, pause])
 
   const handlePreviousVideo = useCallback(() => {
     if (playlist.length > 0 && currentPlaylistIndex > 0) {
+      // Pause current video first
+      pause()
       clearProgress() // Clear current video progress
       onPlaylistChange?.(currentPlaylistIndex - 1)
     }
-  }, [playlist.length, currentPlaylistIndex, onPlaylistChange, clearProgress])
+  }, [playlist.length, currentPlaylistIndex, onPlaylistChange, clearProgress, pause])
 
   // Auto-advance to next video when current ends
   useEffect(() => {
@@ -353,6 +355,9 @@ export function VideoPlayer({
   )
 
   // Enhanced click handler with better double-click detection
+  const [clickTimeout, setClickTimeout] = useState<NodeJS.Timeout | null>(null)
+  const [clickCount, setClickCount] = useState(0)
+
   const handleClick = useCallback(
     (e: React.MouseEvent) => {
       // Don't handle clicks on dropdown menus
@@ -387,15 +392,6 @@ export function VideoPlayer({
     [isPlaying, play, pause, clickTimeout, clickCount, handleDoubleClick, isSettingsOpen, isPlaylistOpen],
   )
 
-  // Cleanup click timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (clickTimeout) {
-        clearTimeout(clickTimeout)
-      }
-    }
-  }, [clickTimeout])
-
   // Keyboard shortcuts
   useKeyboardShortcuts({
     onPlayPause: () => (isPlaying ? pause() : play()),
@@ -425,6 +421,35 @@ export function VideoPlayer({
     onSwipeUp: () => setVolume(Math.min(1, volume + 0.1)),
     onSwipeDown: () => setVolume(Math.max(0, volume - 0.1)),
   })
+
+  // Handle video source changes and auto-play new videos
+  useEffect(() => {
+    if (videoRef.current && currentQuality.src) {
+      const video = videoRef.current
+
+      // Reset video state
+      setIsMetadataLoaded(false)
+      setLastSavedTime(0)
+
+      // Load new video source
+      video.load()
+
+      // Auto-play new video after it's loaded
+      const handleCanPlay = () => {
+        video.removeEventListener("canplay", handleCanPlay)
+        // Small delay to ensure video is ready
+        setTimeout(() => {
+          play().catch(console.error)
+        }, 100)
+      }
+
+      video.addEventListener("canplay", handleCanPlay)
+
+      return () => {
+        video.removeEventListener("canplay", handleCanPlay)
+      }
+    }
+  }, [currentQuality.src, play])
 
   return (
     <div
@@ -492,7 +517,7 @@ export function VideoPlayer({
       {/* Watermark */}
       {watermark && (
         <div className="absolute top-4 right-4 opacity-70 pointer-events-none z-10 transition-all duration-300">
-          <img src={watermark || "/placeholderImage.jpg"} alt="Watermark" className="h-8 drop-shadow-lg" />
+          <img src={watermark || "/placeholder.svg"} alt="Watermark" className="h-8 drop-shadow-lg" />
         </div>
       )}
 

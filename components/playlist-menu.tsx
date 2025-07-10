@@ -1,8 +1,8 @@
 "use client"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { X, Play, Clock } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { Clock, Play, X } from "lucide-react"
 
 interface VideoSource {
   src: string
@@ -62,7 +62,7 @@ export function PlaylistMenu({ playlist, currentIndex, onSelectVideo, onClose }:
               <div className="relative w-16 h-9 bg-muted rounded overflow-hidden flex-shrink-0">
                 {item.poster ? (
                   <img
-                    src={item.poster || "/placeholderImage.jpg"}
+                    src={item.poster || "/placeholder.svg"}
                     alt={item.title}
                     className="w-full h-full object-cover"
                   />

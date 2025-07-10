@@ -104,8 +104,8 @@ export function VideoControls({
   const [showBrightnessSlider, setShowBrightnessSlider] = useState(false)
   const [previewTime, setPreviewTime] = useState<number | null>(null)
   const progressRef = useRef<HTMLDivElement>(null)
-  const volumeTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
-  const brightnessTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
+  const volumeTimeoutRef = useRef<NodeJS.Timeout>()
+  const brightnessTimeoutRef = useRef<NodeJS.Timeout>()
 
   const formatTime = useCallback((time: number) => {
     if (!isFinite(time)) return "0:00"
@@ -268,48 +268,17 @@ export function VideoControls({
         </div>
       </div>
 
-      {/* Control Bar - Enhanced with smooth animations */}
+      {/* Control Bar - Enhanced with better fullscreen support */}
       <div
         className={cn(
           "flex items-center justify-between gap-2 transition-all duration-500 ease-out",
-          isFullscreen ? "px-8 pb-6" : "px-4 pb-4",
+          "bg-gradient-to-t from-black/80 via-black/40 to-transparent",
+          "backdrop-blur-sm border-t border-white/10",
+          isFullscreen ? "px-8 pb-8 pt-4" : "px-4 pb-4 pt-2",
         )}
       >
         {/* Left Controls */}
         <div className="flex items-center space-x-2">
-          {/* Playlist Navigation */}
-          {hasPlaylist && (
-            <>
-              <Button
-                variant="ghost"
-                size={isFullscreen ? "default" : "sm"}
-                onClick={onPreviousVideo}
-                disabled={!canGoPrevious}
-                className={cn(
-                  "text-white hover:bg-white/20 transition-all duration-200",
-                  !canGoPrevious && "opacity-50 cursor-not-allowed",
-                )}
-                aria-label="Previous video"
-              >
-                <ChevronLeft className={cn("h-4 w-4", isFullscreen && "h-5 w-5")} />
-              </Button>
-
-              <Button
-                variant="ghost"
-                size={isFullscreen ? "default" : "sm"}
-                onClick={onNextVideo}
-                disabled={!canGoNext}
-                className={cn(
-                  "text-white hover:bg-white/20 transition-all duration-200",
-                  !canGoNext && "opacity-50 cursor-not-allowed",
-                )}
-                aria-label="Next video"
-              >
-                <ChevronRight className={cn("h-4 w-4", isFullscreen && "h-5 w-5")} />
-              </Button>
-            </>
-          )}
-
           <Button
             variant="ghost"
             size={isFullscreen ? "default" : "sm"}
@@ -324,6 +293,7 @@ export function VideoControls({
             )}
           </Button>
 
+          {/* Skip Backward Button (10s rewind) */}
           <Button
             variant="ghost"
             size={isFullscreen ? "default" : "sm"}
@@ -334,6 +304,7 @@ export function VideoControls({
             <SkipBack className={cn("h-4 w-4", isFullscreen && "h-5 w-5")} />
           </Button>
 
+          {/* Skip Forward Button (10s forward) */}
           <Button
             variant="ghost"
             size={isFullscreen ? "default" : "sm"}
@@ -343,6 +314,48 @@ export function VideoControls({
           >
             <SkipForward className={cn("h-4 w-4", isFullscreen && "h-5 w-5")} />
           </Button>
+
+          {/* Previous Video Button - Enhanced styling */}
+          {hasPlaylist && (
+            <Button
+              variant="ghost"
+              size={isFullscreen ? "default" : "sm"}
+              onClick={onPreviousVideo}
+              disabled={!canGoPrevious}
+              className={cn(
+                "text-white hover:bg-white/20 transition-all duration-200",
+                "border border-white/20 backdrop-blur-sm",
+                !canGoPrevious && "opacity-50 cursor-not-allowed",
+                isFullscreen && "px-4 py-2",
+              )}
+              aria-label="Previous video in playlist"
+              title="Previous video (B)"
+            >
+              <ChevronLeft className={cn("h-4 w-4", isFullscreen && "h-5 w-5")} />
+              {isFullscreen && <span className="ml-1 text-sm">Previous</span>}
+            </Button>
+          )}
+
+          {/* Next Video Button - Enhanced styling */}
+          {hasPlaylist && (
+            <Button
+              variant="ghost"
+              size={isFullscreen ? "default" : "sm"}
+              onClick={onNextVideo}
+              disabled={!canGoNext}
+              className={cn(
+                "text-white hover:bg-white/20 transition-all duration-200",
+                "border border-white/20 backdrop-blur-sm",
+                !canGoNext && "opacity-50 cursor-not-allowed",
+                isFullscreen && "px-4 py-2",
+              )}
+              aria-label="Next video in playlist"
+              title="Next video (N)"
+            >
+              <ChevronRight className={cn("h-4 w-4", isFullscreen && "h-5 w-5")} />
+              {isFullscreen && <span className="ml-1 text-sm">Next</span>}
+            </Button>
+          )}
 
           {/* Volume Control - Enhanced with smooth animations */}
           <div
@@ -439,7 +452,7 @@ export function VideoControls({
               className="text-white hover:bg-white/20 transition-all duration-200"
               aria-label="Open playlist"
             >
-              <List className={cn("h-4 w-4", isFullscreen && "h-5 w5")} />
+              <List className={cn("h-4 w-4", isFullscreen && "h-5 w-5")} />
             </Button>
           )}
 
@@ -472,10 +485,16 @@ export function VideoControls({
             variant="ghost"
             size={isFullscreen ? "default" : "sm"}
             onClick={onOpenSettings}
-            className="text-white hover:bg-white intensely duration-200"
+            className={cn(
+              "text-white hover:bg-white/20 transition-all duration-200",
+              "border border-white/20 backdrop-blur-sm",
+              isFullscreen && "px-4 py-2",
+            )}
             aria-label="Open settings"
+            title="Settings"
           >
             <Settings className={cn("h-4 w-4", isFullscreen && "h-5 w-5")} />
+            {isFullscreen && <span className="ml-1 text-sm">Settings</span>}
           </Button>
 
           <Button
