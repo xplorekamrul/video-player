@@ -57,11 +57,11 @@ export function VideoPlayer({
   currentPlaylistIndex = 0,
   onPlaylistChange,
 }: VideoPlayerProps) {
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const containerRef = useRef<HTMLDivElement>(null)
-  const settingsRef = useRef<HTMLDivElement>(null)
-  const playlistRef = useRef<HTMLDivElement>(null)
-  const controlsTimeoutRef = useRef<NodeJS.Timeout>()
+  const videoRef = useRef<HTMLVideoElement>(null) as React.RefObject<HTMLVideoElement>
+  const containerRef = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>
+  const settingsRef = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>
+  const playlistRef = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>
+  const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const [showControls, setShowControls] = useState(true)
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
@@ -77,7 +77,9 @@ export function VideoPlayer({
     amount: number
   } | null>(null)
   const [cursorVisible, setCursorVisible] = useState(true)
-  const [lastSavedTime, setLastSavedTime] = useState(0) // Track last saved time
+  const [lastSavedTime, setLastSavedTime] = useState(0)
+  const [clickTimeout, setClickTimeout] = useState<NodeJS.Timeout | null>(null)
+  const [clickCount, setClickCount] = useState(0)
 
   const {
     isPlaying,
@@ -127,7 +129,9 @@ export function VideoPlayer({
     if (!container) return
 
     const resetControlsTimeout = () => {
-      clearTimeout(controlsTimeoutRef.current)
+      if (controlsTimeoutRef.current) {
+        clearTimeout(controlsTimeoutRef.current)
+      }
       setShowControls(true)
       setCursorVisible(true)
 
@@ -154,7 +158,9 @@ export function VideoPlayer({
     }
 
     const handleMouseLeave = () => {
-      clearTimeout(controlsTimeoutRef.current)
+      if (controlsTimeoutRef.current) {
+        clearTimeout(controlsTimeoutRef.current)
+      }
       if (isFullscreen) {
         // In fullscreen, start hiding after 5 seconds when mouse leaves
         controlsTimeoutRef.current = setTimeout(() => {
@@ -177,11 +183,14 @@ export function VideoPlayer({
     container.addEventListener("mouseleave", handleMouseLeave)
     container.addEventListener("mouseenter", handleMouseEnter)
 
-    // Initial setup
+    // Initial state
     resetControlsTimeout()
 
+    // Cleanup
     return () => {
-      clearTimeout(controlsTimeoutRef.current)
+      if (controlsTimeoutRef.current) {
+        clearTimeout(controlsTimeoutRef.current)
+      }
       container.removeEventListener("mousemove", handleMouseMove)
       container.removeEventListener("mouseleave", handleMouseLeave)
       container.removeEventListener("mouseenter", handleMouseEnter)
@@ -191,7 +200,9 @@ export function VideoPlayer({
   // Handle dropdown state changes
   useEffect(() => {
     if (isSettingsOpen || isPlaylistOpen) {
-      clearTimeout(controlsTimeoutRef.current)
+      if (controlsTimeoutRef.current) {
+        clearTimeout(controlsTimeoutRef.current)
+      }
       setShowControls(true)
       setCursorVisible(true)
     }
@@ -231,7 +242,7 @@ export function VideoPlayer({
   const handleQualityChange = useCallback(
     (quality: VideoSource) => {
       if (videoRef.current && quality.src !== currentQuality.src) {
-        const currentTime = videoRef.current.currentTime
+        const currentTimeStamp = videoRef.current.currentTime
         const wasPlaying = !videoRef.current.paused
 
         setCurrentQuality(quality)
@@ -239,7 +250,7 @@ export function VideoPlayer({
 
         const handleLoadedData = () => {
           if (videoRef.current) {
-            videoRef.current.currentTime = currentTime
+            videoRef.current.currentTime = currentTimeStamp
             if (wasPlaying) {
               play().catch(console.error)
             }
@@ -342,9 +353,6 @@ export function VideoPlayer({
   )
 
   // Enhanced click handler with better double-click detection
-  const [clickTimeout, setClickTimeout] = useState<NodeJS.Timeout | null>(null)
-  const [clickCount, setClickCount] = useState(0)
-
   const handleClick = useCallback(
     (e: React.MouseEvent) => {
       // Don't handle clicks on dropdown menus
@@ -378,6 +386,15 @@ export function VideoPlayer({
     },
     [isPlaying, play, pause, clickTimeout, clickCount, handleDoubleClick, isSettingsOpen, isPlaylistOpen],
   )
+
+  // Cleanup click timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (clickTimeout) {
+        clearTimeout(clickTimeout)
+      }
+    }
+  }, [clickTimeout])
 
   // Keyboard shortcuts
   useKeyboardShortcuts({

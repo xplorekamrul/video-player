@@ -104,8 +104,8 @@ export function VideoControls({
   const [showBrightnessSlider, setShowBrightnessSlider] = useState(false)
   const [previewTime, setPreviewTime] = useState<number | null>(null)
   const progressRef = useRef<HTMLDivElement>(null)
-  const volumeTimeoutRef = useRef<NodeJS.Timeout>()
-  const brightnessTimeoutRef = useRef<NodeJS.Timeout>()
+  const volumeTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
+  const brightnessTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
 
   const formatTime = useCallback((time: number) => {
     if (!isFinite(time)) return "0:00"
@@ -439,7 +439,7 @@ export function VideoControls({
               className="text-white hover:bg-white/20 transition-all duration-200"
               aria-label="Open playlist"
             >
-              <List className={cn("h-4 w-4", isFullscreen && "h-5 w-5")} />
+              <List className={cn("h-4 w-4", isFullscreen && "h-5 w5")} />
             </Button>
           )}
 
@@ -472,7 +472,7 @@ export function VideoControls({
             variant="ghost"
             size={isFullscreen ? "default" : "sm"}
             onClick={onOpenSettings}
-            className="text-white hover:bg-white/20 transition-all duration-200"
+            className="text-white hover:bg-white intensely duration-200"
             aria-label="Open settings"
           >
             <Settings className={cn("h-4 w-4", isFullscreen && "h-5 w-5")} />
