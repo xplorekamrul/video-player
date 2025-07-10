@@ -32,21 +32,21 @@ export default function Home() {
     videoId: "big-buck-bunny",
   })
 
-  const handleFileSelect = (file: File) => {
-    const url = URL.createObjectURL(file)
-    setCurrentVideo({
-      sources: [
-        {
-          src: url,
-          type: file.type,
-          label: "Original",
-          res: 1080,
-        }, 
-      ],
-      title: file.name,
-      videoId: `local-${Date.now()}`,
-    })
-  }
+  // const handleFileSelect = (file: File) => {
+  //   const url = URL.createObjectURL(file)
+  //   setCurrentVideo({
+  //     sources: [
+  //       {
+  //         src: url,
+  //         type: file.type,
+  //         label: "Original",
+  //         res: 1080,
+  //       }, 
+  //     ],
+  //     title: file.name,
+  //     videoId: `local-${Date.now()}`,
+  //   })
+  // }
 
   return (
     <ThemeProvider>
@@ -57,9 +57,9 @@ export default function Home() {
             <ThemeToggle />
           </div>
 
-          <div className="mb-6">
+          {/*<div className="mb-6">
             <FileUpload onFileSelect={handleFileSelect} />
-          </div>
+          </div>*/}
 
           <VideoPlayer
             sources={currentVideo.sources}
