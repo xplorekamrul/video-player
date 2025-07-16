@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
 import { X, ChevronRight, ChevronLeft, Settings, Zap, Palette, Monitor, Volume2 } from "lucide-react"
@@ -45,6 +45,7 @@ export function EnhancedSettingsMenu({
   onClose,
 }: EnhancedSettingsMenuProps) {
   const [currentView, setCurrentView] = useState<MenuView>("main")
+  const dialogRef = useRef<HTMLDivElement>(null)
 
   const speedOptions = [
     { label: "0.25x", value: 0.25 },
@@ -82,6 +83,20 @@ export function EnhancedSettingsMenu({
     onPlaybackRateChange(speed)
     setCurrentView("main")
   }
+
+  // Handle clicks outside the dialog
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dialogRef.current && !dialogRef.current.contains(event.target as Node)) {
+        onClose()
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [onClose])
 
   const renderMainMenu = () => (
     <div className="space-y-1">
@@ -350,7 +365,18 @@ export function EnhancedSettingsMenu({
   )
 
   return (
-    <div className="absolute bottom-16 right-4 w-80 bg-background/95 backdrop-blur-sm rounded-lg border shadow-xl z-50 animate-in slide-in-from-right-2 duration-300">
+  <>
+    {/* Clickable transparent backdrop */}
+    <div
+      className="fixed inset-0 z-40"
+      onClick={onClose}
+    />
+
+    {/* Settings dialog */}
+    <div
+      ref={dialogRef}
+      className="fixed bottom-16 right-4 z-90 w-80 bg-background/95 backdrop-blur-sm rounded-lg border shadow-xl animate-in slide-in-from-right-2 duration-300"
+    >
       {currentView === "main" && renderMainMenu()}
       {currentView === "quality" && renderQualityMenu()}
       {currentView === "speed" && renderSpeedMenu()}
@@ -358,5 +384,6 @@ export function EnhancedSettingsMenu({
       {currentView === "display" && renderDisplayMenu()}
       {currentView === "controls" && renderControlsMenu()}
     </div>
-  )
+  </>
+)
 }

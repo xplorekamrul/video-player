@@ -46,7 +46,9 @@ export default function Home() {
       src: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
       poster: "/placeholder.svg?height=720&width=1280",
     },
+    
   ])
+
 
   // Regular MP4 playlist for comparison
   const [playlist] = useState<PlaylistItem[]>([

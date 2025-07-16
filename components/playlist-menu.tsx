@@ -35,6 +35,7 @@ export function PlaylistMenu({ playlist, currentIndex, onSelectVideo, onClose }:
   }
 
   return (
+    //playList Menu Dailoug
     <div className="absolute bottom-16 right-4 w-96 max-h-96 bg-background/95 backdrop-blur-sm rounded-lg border shadow-xl z-50 animate-in slide-in-from-right-2 duration-300">
       <div className="flex items-center justify-between p-4 border-b border-border">
         <div className="flex items-center space-x-2">
