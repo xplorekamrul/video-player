@@ -40,7 +40,7 @@ export function useHLSPlayer({
   const [isPlaying, setIsPlaying] = useState(false)
   const [canSeek, setCanSeek] = useState(false)
 
-  const saveTimeoutRef = useRef<NodeJS.Timeout>()
+  const saveTimeoutRef = useRef<NodeJS.Timeout>(null);
   const lastSavedTimeRef = useRef(0)
   const positionRestoredRef = useRef(false)
   const seekingToSavedPositionRef = useRef(false)

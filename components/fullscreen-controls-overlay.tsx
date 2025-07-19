@@ -89,6 +89,8 @@ export function FullscreenControlsOverlay({
           </div>
         </div>
       </div>
+
+      
     </div>
   )
 }

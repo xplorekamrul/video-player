@@ -2,12 +2,12 @@
 
 import { useState } from "react"
 import { EnhancedVideoPlayer } from "@/components/enhanced-video-player"
-import { VideoPlayer } from "@/components/video-player"
-import { FileUpload } from "@/components/file-upload"
+// import { VideoPlayer } from "@/components/video-player"
+// import { FileUpload } from "@/components/file-upload"
 import { ThemeProvider } from "@/components/theme-provider"
 import { ThemeToggle } from "@/components/theme-toggle"
-import { Button } from "@/components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+// import { Button } from "@/components/ui/button"
+// import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
 interface VideoSource {

@@ -12,8 +12,10 @@ import { cn } from "@/lib/utils"
 import { AlertCircle, RotateCcw, Play, Info, CheckCircle, SkipForward, SkipBack } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useClickOutside } from "@/hooks/use-click-outside"
-import { SettingsMenu } from "./settings-menu"
+// import { SettingsMenu } from "./settings-menu"
 import { useInternationalKeyboardShortcuts } from "@/hooks/use-international-keyboard-shortcuts"
+// import { SettingsMenu } from "./settings-menu"
+import { EnhancedSettingsMenu } from "./enhanced-settings-menu"
 
 interface EnhancedVideoPlayerProps {
   src: string
@@ -84,6 +86,9 @@ export function EnhancedVideoPlayer({
     amount: number
   } | null>(null)
 
+  // Fullscreen controls state
+  const [forceShowControlsInFullscreen, setForceShowControlsInFullscreen] = useState(false)
+
   const settingsRef = useRef<HTMLDivElement>(null)
   const playlistRef = useRef<HTMLDivElement>(null)
 
@@ -125,7 +130,7 @@ export function EnhancedVideoPlayer({
     clearSavedPosition,
     sessionId,
   } = useEnhancedVideoPlayer({
-    videoRef,
+    videoRef: videoRef as React.RefObject<HTMLVideoElement>,
     src,
     videoId,
     autoplay,
@@ -134,8 +139,8 @@ export function EnhancedVideoPlayer({
     chunkSize,
   })
 
-  useClickOutside(settingsRef, () => setIsSettingsOpen(false))
-  useClickOutside(playlistRef, () => setIsPlaylistOpen(false))
+  useClickOutside(settingsRef as React.RefObject<HTMLElement>, () => setIsSettingsOpen(false))
+  useClickOutside(playlistRef as React.RefObject<HTMLElement>, () => setIsPlaylistOpen(false))
 
   // Enhanced navigation handlers with proper state management
   const handleNextVideo = useCallback(() => {
@@ -361,34 +366,68 @@ export function EnhancedVideoPlayer({
     }
   }, [isPlaying, play, pause])
 
-  // Controls visibility management - Fixed to work after pause
+  // Enhanced controls visibility management - Fixed for fullscreen
   useEffect(() => {
     let timeout: NodeJS.Timeout
 
     const resetTimeout = () => {
       clearTimeout(timeout)
       setShowControls(true)
+      setForceShowControlsInFullscreen(false)
 
-      // Only hide controls if playing and not in fullscreen and no menus open
-      if (isPlaying && !isFullscreen && !isSettingsOpen && !isPlaylistOpen) {
+      // In fullscreen, always show controls initially and hide after longer delay
+      // In normal mode, hide controls only if playing and no menus are open
+      if (isFullscreen) {
+        timeout = setTimeout(() => {
+          if (isPlaying && !isSettingsOpen && !isPlaylistOpen) {
+            setShowControls(false)
+          }
+        }, 4000) // Longer delay in fullscreen
+      } else if (isPlaying && !isSettingsOpen && !isPlaylistOpen) {
         timeout = setTimeout(() => {
           setShowControls(false)
         }, 3000)
       }
     }
 
-    const handleMouseMove = () => resetTimeout()
+    const handleMouseMove = () => {
+      resetTimeout()
+      if (isFullscreen) {
+        setForceShowControlsInFullscreen(true)
+      }
+    }
+
     const handleMouseLeave = () => {
       clearTimeout(timeout)
-      // Only hide controls if playing and not in fullscreen and no menus open
-      if (isPlaying && !isFullscreen && !isSettingsOpen && !isPlaylistOpen) {
+      if (isFullscreen) {
+        // In fullscreen, give more time before hiding controls
+        if (isPlaying && !isSettingsOpen && !isPlaylistOpen) {
+          timeout = setTimeout(() => {
+            setShowControls(false)
+            setForceShowControlsInFullscreen(false)
+          }, 2000)
+        }
+      } else if (isPlaying && !isSettingsOpen && !isPlaylistOpen) {
         setShowControls(false)
+      }
+    }
+
+    const handleKeyPress = (e: KeyboardEvent) => {
+      // Show controls on any key press in fullscreen
+      if (isFullscreen) {
+        resetTimeout()
+        setForceShowControlsInFullscreen(true)
       }
     }
 
     if (containerRef.current) {
       containerRef.current.addEventListener("mousemove", handleMouseMove)
       containerRef.current.addEventListener("mouseleave", handleMouseLeave)
+    }
+
+    // Add global key listener for fullscreen
+    if (isFullscreen) {
+      document.addEventListener("keydown", handleKeyPress)
     }
 
     resetTimeout()
@@ -399,8 +438,19 @@ export function EnhancedVideoPlayer({
         containerRef.current.removeEventListener("mousemove", handleMouseMove)
         containerRef.current.removeEventListener("mouseleave", handleMouseLeave)
       }
+      document.removeEventListener("keydown", handleKeyPress)
     }
   }, [isPlaying, isFullscreen, isSettingsOpen, isPlaylistOpen])
+
+  // Force show controls when entering fullscreen
+  useEffect(() => {
+    if (isFullscreen) {
+      setShowControls(true)
+      setForceShowControlsInFullscreen(true)
+    } else {
+      setForceShowControlsInFullscreen(false)
+    }
+  }, [isFullscreen])
 
   // Error callback
   useEffect(() => {
@@ -417,6 +467,9 @@ export function EnhancedVideoPlayer({
       }
     }
   }, [clickTimeout])
+
+  // Calculate if controls should be visible
+  const shouldShowControls = showControls || forceShowControlsInFullscreen || isSettingsOpen || isPlaylistOpen || !isPlaying
 
   return (
     <div
@@ -591,11 +644,12 @@ export function EnhancedVideoPlayer({
         </div>
       )}
 
-      {/* Controls */}
+      {/* Enhanced Video Controls - Always visible in fullscreen when needed */}
       <div
         className={cn(
-          "absolute inset-0 transition-opacity duration-300 pointer-events-none",
-          showControls ? "opacity-100" : "opacity-0",
+          "absolute inset-0 transition-opacity duration-300",
+          shouldShowControls ? "opacity-100" : "opacity-0",
+          isFullscreen && "z-[999]", 
         )}
       >
         <div className="pointer-events-auto" data-control="true">
@@ -614,7 +668,7 @@ export function EnhancedVideoPlayer({
             buffered={buffered}
             isMetadataLoaded={isMetadataLoaded}
             seekDuration={seekDuration}
-            showControls={showControls}
+            showControls={shouldShowControls}
             hasPlaylist={playlist.length > 0}
             canGoNext={currentIndex < playlist.length - 1}
             canGoPrevious={currentIndex > 0}
@@ -643,13 +697,15 @@ export function EnhancedVideoPlayer({
 
       {/* Settings Menu */}
       {isSettingsOpen && (
-        <div ref={settingsRef} className="absolute inset-0 z-50 pointer-events-auto">
-          <SettingsMenu
+        <div ref={settingsRef} className={cn("absolute inset-0 pointer-events-auto", isFullscreen ? "z-60" : "z-50")}>
+          <EnhancedSettingsMenu
             sources={[{ src, type: "video/mp4", label: "Auto", res: 1080 }]}
             currentQuality={{ src, type: "video/mp4", label: "Auto", res: 1080 }}
             playbackRate={playbackRate}
             brightness={brightness}
             seekDuration={seekDuration}
+            volume={volume}
+            onVolumeChange={handleVolumeChange}
             onQualityChange={() => {}}
             onPlaybackRateChange={setPlaybackRate}
             onBrightnessChange={handleBrightnessChange}
@@ -661,7 +717,7 @@ export function EnhancedVideoPlayer({
 
       {/* Playlist Menu */}
       {isPlaylistOpen && playlist.length > 0 && (
-        <div ref={playlistRef} className="absolute inset-0 z-50 pointer-events-auto">
+        <div ref={playlistRef} className={cn("absolute inset-0 pointer-events-auto", isFullscreen ? "z-60" : "z-50")}>
           <PlaylistMenu
             playlist={playlist.map((item) => ({
               id: item.id,
@@ -681,9 +737,11 @@ export function EnhancedVideoPlayer({
       )}
 
       {/* Title */}
-      {title && showControls && (
-        <div className="absolute top-4 left-4 z-10 pointer-events-none">
-          <h3 className="text-white text-lg font-semibold drop-shadow-lg">{title}</h3>
+      {title && shouldShowControls && (
+        <div className={cn("absolute top-4 left-4 pointer-events-none", isFullscreen ? "z-50" : "z-10")}>
+          <h3 className={cn("text-white font-semibold drop-shadow-lg", isFullscreen ? "text-2xl" : "text-lg")}>
+            {title}
+          </h3>
           <div className="flex items-center space-x-2 mt-1">
             <span className="text-xs text-white/70 bg-black/50 px-2 py-1 rounded">Enhanced Playback</span>
             {playlist.length > 0 && (
@@ -691,20 +749,36 @@ export function EnhancedVideoPlayer({
                 {currentIndex + 1} of {playlist.length}
               </span>
             )}
+            {isFullscreen && (
+              <span className="text-xs text-white/70 bg-black/50 px-2 py-1 rounded">Fullscreen Mode</span>
+            )}
           </div>
         </div>
       )}
 
-      {/* Click Instructions Overlay */}
-      {isFullscreen && showControls && (
-        <div className="absolute bottom-20 left-4 z-10 bg-black/80 text-white text-xs p-3 rounded-lg backdrop-blur-sm border border-white/20 max-w-xs pointer-events-none">
-          <div className="font-semibold mb-2">Video Controls</div>
+      {/* Fullscreen Instructions Overlay */}
+      {isFullscreen && shouldShowControls && (
+        <div className="absolute bottom-24 left-4 z-60 bg-black/80 text-white text-sm p-4 rounded-lg backdrop-blur-sm border border-white/20 max-w-md pointer-events-none">
+          <div className="font-semibold mb-2 flex items-center">
+            <Info className="h-4 w-4 mr-2" />
+            Fullscreen Controls
+          </div>
           <div className="space-y-1 text-xs">
+            <div>• Move mouse to show controls</div>
             <div>• Single click: Play/Pause</div>
             <div>• Double click left: Rewind {seekDuration}s</div>
             <div>• Double click right: Forward {seekDuration}s</div>
-            <div>• Keyboard: Space, ←/→, ↑/↓, F, M, N, B</div>
+            <div>• Press any key to show controls</div>
+            <div>• ESC or F: Exit fullscreen</div>
+            <div>• Space: Play/Pause | ↑/↓: Volume | ←/→: Seek</div>
           </div>
+        </div>
+      )}
+
+      {/* Fullscreen Controls Hint */}
+      {isFullscreen && !shouldShowControls && (
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-60 bg-black/60 text-white text-xs px-4 py-2 rounded-full backdrop-blur-sm border border-white/10 pointer-events-none animate-pulse">
+          Move mouse or press any key to show controls
         </div>
       )}
     </div>

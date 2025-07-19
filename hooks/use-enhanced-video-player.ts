@@ -62,13 +62,13 @@ export function useEnhancedVideoPlayer({
   const [readyState, setReadyState] = useState<number>(0)
 
   // Refs for managing state
-  const saveTimeoutRef = useRef<NodeJS.Timeout>()
-  const lastSavedTimeRef = useRef(0)
-  const positionRestoredRef = useRef(false)
-  const seekingToSavedPositionRef = useRef(false)
-  const sessionIdRef = useRef<string>()
-  const playPromiseRef = useRef<Promise<void> | null>(null)
-  const saveIntervalRef = useRef<NodeJS.Timeout>()
+ const saveTimeoutRef = useRef<NodeJS.Timeout>(null);
+const lastSavedTimeRef = useRef<number>(0);
+const positionRestoredRef = useRef<boolean>(false);
+const seekingToSavedPositionRef = useRef<boolean>(false);
+const sessionIdRef = useRef<string>('');
+const playPromiseRef = useRef<Promise<void> | null>(null);
+const saveIntervalRef = useRef<NodeJS.Timeout>(null);
 
   // Generate session ID
   const generateSessionId = useCallback(() => {

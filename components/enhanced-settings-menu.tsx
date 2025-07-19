@@ -1,10 +1,10 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
-import { X, ChevronRight, ChevronLeft, Settings, Zap, Palette, Monitor, Volume2 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { ChevronLeft, ChevronRight, Monitor, Palette, Settings, Volume2, X, Zap } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
 
 interface VideoSource {
   src: string
@@ -87,6 +87,7 @@ export function EnhancedSettingsMenu({
   // Handle clicks outside the dialog
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      // যদি click settings menu এর বাইরে হয়, তাহলে close করবো
       if (dialogRef.current && !dialogRef.current.contains(event.target as Node)) {
         onClose()
       }
@@ -97,6 +98,8 @@ export function EnhancedSettingsMenu({
       document.removeEventListener("mousedown", handleClickOutside)
     }
   }, [onClose])
+
+
 
   const renderMainMenu = () => (
     <div className="space-y-1">
@@ -365,16 +368,9 @@ export function EnhancedSettingsMenu({
   )
 
   return (
-  <>
-    {/* Clickable transparent backdrop */}
-    <div
-      className="fixed inset-0 z-40"
-      onClick={onClose}
-    />
-
-    {/* Settings dialog */}
     <div
       ref={dialogRef}
+      onClick={(e) => e.stopPropagation()} // inner click এ stopPropagation
       className="fixed bottom-16 right-4 z-90 w-80 bg-background/95 backdrop-blur-sm rounded-lg border shadow-xl animate-in slide-in-from-right-2 duration-300"
     >
       {currentView === "main" && renderMainMenu()}
@@ -384,6 +380,6 @@ export function EnhancedSettingsMenu({
       {currentView === "display" && renderDisplayMenu()}
       {currentView === "controls" && renderControlsMenu()}
     </div>
-  </>
-)
+
+  )
 }
