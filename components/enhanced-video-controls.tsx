@@ -374,7 +374,7 @@ export function EnhancedVideoControls({
             "flex items-center justify-between gap-4 transition-all duration-500 ease-out",
             "bg-gradient-to-t from-black/80 via-black/50 to-transparent",
             "backdrop-blur-md border-t border-white/20",
-            isFullscreen ? "px-12 py-6" : "px-4 py-3"
+            isFullscreen ? "px-4 py-3" : "px-4 py-3"
           )}
         >
           <div className="flex items-center space-x-3">
@@ -382,7 +382,7 @@ export function EnhancedVideoControls({
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  size={isFullscreen ? "lg" : "sm"}
+                  size={isFullscreen ? "sm" : "sm"}
                   onClick={(e) => {
                     e.stopPropagation()
                     isPlaying ? onPause() : onPlay()
@@ -392,13 +392,13 @@ export function EnhancedVideoControls({
                   aria-pressed={isPlaying}
                 >
                   {isPlaying ? (
-                    <Pause className={cn("h-6 w-6", isFullscreen && "h-8 w-8")} />
+                    <Pause className={cn("h-6 w-6", isFullscreen && "h-6 w-6")} />
                   ) : (
-                    <Play className={cn("h-6 w-6", isFullscreen && "h-8 w-8")} />
+                    <Play className={cn("h-6 w-6", isFullscreen && "h-6 w-6")} />
                   )}
                 </Button>
               </TooltipTrigger>
-              <TooltipContent className={cn(isFullscreen && "text-lg p-3")}>
+              <TooltipContent className={cn(isFullscreen && "text-md p-2")}>
                 {getTooltipContent(isPlaying ? "Pause" : "Play")}
               </TooltipContent>
             </Tooltip>
