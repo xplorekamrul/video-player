@@ -57,7 +57,7 @@ export function PlaylistMenu({ playlist, currentIndex, onSelectVideo, onClose }:
   return (
     <TooltipProvider delayDuration={100}>
       <div
-        className="absolute inset-0 flex items-end justify-end bg-black/80 backdrop-blur-sm z-50"
+        className="absolute inset-0 flex items-end justify-end "
         onClick={handleClose}
       >
         <div

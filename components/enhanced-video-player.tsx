@@ -649,7 +649,7 @@ export function EnhancedVideoPlayer({
         className={cn(
           "absolute inset-0 transition-opacity duration-300",
           shouldShowControls ? "opacity-100" : "opacity-0",
-          isFullscreen && "z-[999]", 
+          isFullscreen ? "z-[1001] pointer-events-auto" : "z-50 pointer-events-none"
         )}
       >
         <div className="pointer-events-auto" data-control="true">
@@ -706,7 +706,7 @@ export function EnhancedVideoPlayer({
             seekDuration={seekDuration}
             volume={volume}
             onVolumeChange={handleVolumeChange}
-            onQualityChange={() => {}}
+            onQualityChange={() => { }}
             onPlaybackRateChange={setPlaybackRate}
             onBrightnessChange={handleBrightnessChange}
             onSeekDurationChange={setSeekDuration}
