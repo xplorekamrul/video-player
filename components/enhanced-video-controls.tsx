@@ -317,9 +317,9 @@ export function EnhancedVideoControls({
           <div
             ref={progressRef}
             className={cn(
-              "relative bg-white/20 rounded-full cursor-pointer group transition-all duration-300 ease-out",
-              isFullscreen ? "h-2" : "h-2",
-              "hover:h-3 hover:bg-white/30"
+              "relative bg-white/20 rounded-full cursor-pointer group transition-all duration-300 ease-out h-[6px]",
+              // isFullscreen ? "h-2" : "h-2",
+              "hover:h-[8px] hover:bg-white/30"
             )}
             onClick={handleProgressClick}
             onMouseMove={handleProgressMouseMove}
