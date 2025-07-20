@@ -313,13 +313,13 @@ export function EnhancedVideoControls({
         )}
         onClick={handleControlClick}
       >
-        <div className={cn("px-4 pb-2 transition-all duration-500 ease-out", isFullscreen && "px-12 pb-6")}>
+        <div className={cn("px-4 pb-2 transition-all duration-500 ease-out", isFullscreen && "px-4 pb-2")}>
           <div
             ref={progressRef}
             className={cn(
               "relative bg-white/20 rounded-full cursor-pointer group transition-all duration-300 ease-out",
-              isFullscreen ? "h-4" : "h-2",
-              "hover:h-4 hover:bg-white/30"
+              isFullscreen ? "h-2" : "h-2",
+              "hover:h-3 hover:bg-white/30"
             )}
             onClick={handleProgressClick}
             onMouseMove={handleProgressMouseMove}
@@ -373,11 +373,76 @@ export function EnhancedVideoControls({
           className={cn(
             "flex items-center justify-between gap-4 transition-all duration-500 ease-out",
             "bg-gradient-to-t from-black/80 via-black/50 to-transparent",
-            "backdrop-blur-md border-t border-white/20",
-            isFullscreen ? "px-4 py-3" : "px-4 py-3"
+            "backdrop-blur-md border-t border-white/20 px-4 py-3",
           )}
         >
           <div className="flex items-center space-x-3">
+
+            {/* <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size={isFullscreen ? "lg" : "sm"}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onSkipBackward()
+                  }}
+                  className="text-white hover:bg-white/20 transition-all duration-200"
+                  aria-label={`Skip backward ${seekDuration} seconds`}
+                >
+                  <SkipBack className={cn("h-5 w-5")} />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent >
+                {getTooltipContent("Skip backward", `${seekDuration}s`)}
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size={isFullscreen ? "sm" : "sm"}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onSkipForward()
+                  }}
+                  className="text-white hover:bg-white/20 transition-all duration-200"
+                  aria-label={`Skip forward ${seekDuration} seconds`}
+                >
+                  <SkipForward className={cn("h-5 w-5")} />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent >
+                {getTooltipContent("Skip forward", `${seekDuration}s`)}
+              </TooltipContent>
+            </Tooltip> */}
+
+            {hasPlaylist && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size={isFullscreen ? "lg" : "sm"}
+                    onClick={handlePreviousVideo}
+                    disabled={!canGoPrevious || isNavigating}
+                    className={cn(
+                      "text-white hover:bg-white/20 transition-all duration-200 border border-white/20 backdrop-blur-md",
+                      (!canGoPrevious || isNavigating) && "opacity-50 cursor-not-allowed",
+                      isFullscreen && "px-5 py-3",
+                      isNavigating && "animate-pulse"
+                    )}
+                    aria-label="Previous video in playlist"
+                  >
+                    <SkipBack className={cn("h-5 w-5")} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent >
+                  {getTooltipContent("Previous video")}
+                </TooltipContent>
+              </Tooltip>
+            )}
+
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
@@ -398,76 +463,11 @@ export function EnhancedVideoControls({
                   )}
                 </Button>
               </TooltipTrigger>
-              <TooltipContent className={cn(isFullscreen && "text-md p-2")}>
+              <TooltipContent >
                 {getTooltipContent(isPlaying ? "Pause" : "Play")}
               </TooltipContent>
             </Tooltip>
 
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size={isFullscreen ? "lg" : "sm"}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onSkipBackward()
-                  }}
-                  className="text-white hover:bg-white/20 transition-all duration-200"
-                  aria-label={`Skip backward ${seekDuration} seconds`}
-                >
-                  <SkipBack className={cn("h-5 w-5", isFullscreen && "h-7 w-7")} />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent className={cn(isFullscreen && "text-lg p-3")}>
-                {getTooltipContent("Skip backward", `${seekDuration}s`)}
-              </TooltipContent>
-            </Tooltip>
-
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size={isFullscreen ? "lg" : "sm"}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onSkipForward()
-                  }}
-                  className="text-white hover:bg-white/20 transition-all duration-200"
-                  aria-label={`Skip forward ${seekDuration} seconds`}
-                >
-                  <SkipForward className={cn("h-5 w-5", isFullscreen && "h-7 w-7")} />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent className={cn(isFullscreen && "text-lg p-3")}>
-                {getTooltipContent("Skip forward", `${seekDuration}s`)}
-              </TooltipContent>
-            </Tooltip>
-
-            {hasPlaylist && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size={isFullscreen ? "lg" : "sm"}
-                    onClick={handlePreviousVideo}
-                    disabled={!canGoPrevious || isNavigating}
-                    className={cn(
-                      "text-white hover:bg-white/20 transition-all duration-200 border border-white/20 backdrop-blur-md",
-                      (!canGoPrevious || isNavigating) && "opacity-50 cursor-not-allowed",
-                      isFullscreen && "px-5 py-3",
-                      isNavigating && "animate-pulse"
-                    )}
-                    aria-label="Previous video in playlist"
-                  >
-                    <SkipBack className={cn("h-5 w-5", isFullscreen && "h-7 w-7")} />
-                    {isFullscreen && <span className="ml-2 text-base">Previous</span>}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent className={cn(isFullscreen && "text-lg p-3")}>
-                  {getTooltipContent("Previous video")}
-                </TooltipContent>
-              </Tooltip>
-            )}
 
             {hasPlaylist && (
               <Tooltip>
@@ -485,11 +485,10 @@ export function EnhancedVideoControls({
                     )}
                     aria-label="Next video in playlist"
                   >
-                    <SkipForward className={cn("h-5 w-5", isFullscreen && "h-7 w-7")} />
-                    {isFullscreen && <span className="ml-2 text-base">Next</span>}
+                    <SkipForward className={cn("h-5 w-5")} />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent className={cn(isFullscreen && "text-lg p-3")}>
+                <TooltipContent >
                   {getTooltipContent("Next video")}
                 </TooltipContent>
               </Tooltip>
@@ -512,13 +511,13 @@ export function EnhancedVideoControls({
                       aria-pressed={isMuted}
                     >
                       {isMuted || volume === 0 ? (
-                        <VolumeX className={cn("h-5 w-5", isFullscreen && "h-7 w-7")} />
+                        <VolumeX className={cn("h-5 w-5")} />
                       ) : (
-                        <Volume2 className={cn("h-5 w-5", isFullscreen && "h-7 w-7")} />
+                        <Volume2 className={cn("h-5 w-5")} />
                       )}
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent className={cn(isFullscreen && "text-lg p-3")}>
+                  <TooltipContent >
                     {getTooltipContent(isMuted ? "Unmute" : "Mute", `${Math.round(volume * 100)}%`)}
                   </TooltipContent>
                 </Tooltip>
@@ -576,10 +575,10 @@ export function EnhancedVideoControls({
                       aria-label="Brightness control"
                       onClick={handleControlClick}
                     >
-                      <Sun className={cn("h-5 w-5", isFullscreen && "h-7 w-7")} />
+                      <Sun className={cn("h-5 w-5")} />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent className={cn(isFullscreen && "text-lg p-3")}>
+                  <TooltipContent >
                     {getTooltipContent("Brightness", `${brightness}%`)}
                   </TooltipContent>
                 </Tooltip>
@@ -625,10 +624,10 @@ export function EnhancedVideoControls({
                     className="text-white hover:bg-white/20 transition-all duration-200"
                     aria-label="Open playlist"
                   >
-                    <List className={cn("h-5 w-5", isFullscreen && "h-7 w-7")} />
+                    <List className={cn("h-5 w-5")} />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent className={cn(isFullscreen && "text-lg p-3")}>
+                <TooltipContent >
                   {getTooltipContent("Open playlist")}
                 </TooltipContent>
               </Tooltip>
@@ -651,10 +650,10 @@ export function EnhancedVideoControls({
                   aria-label="Picture in Picture"
                   aria-pressed={isPiP}
                 >
-                  <PictureInPicture className={cn("h-5 w-5", isFullscreen && "h-7 w-7")} />
+                  <PictureInPicture className={cn("h-5 w-5")} />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent className={cn(isFullscreen && "text-lg p-3")}>
+              <TooltipContent >
                 {getTooltipContent("Picture in Picture")}
               </TooltipContent>
             </Tooltip>
@@ -672,10 +671,10 @@ export function EnhancedVideoControls({
                   aria-label="Toggle theater mode"
                   aria-pressed={theaterMode}
                 >
-                  <Monitor className={cn("h-5 w-5", isFullscreen && "h-7 w-7")} />
+                  <Monitor className={cn("h-5 w-5")} />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent className={cn(isFullscreen && "text-lg p-3")}>
+              <TooltipContent >
                 {getTooltipContent("Theater mode")}
               </TooltipContent>
             </Tooltip>
@@ -695,11 +694,10 @@ export function EnhancedVideoControls({
                   )}
                   aria-label="Open settings"
                 >
-                  <Settings className={cn("h-5 w-5", isFullscreen && "h-7 w-7")} />
-                  {isFullscreen && <span className="ml-2 text-base">Settings</span>}
+                  <Settings className={cn("h-5 w-5")} />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent className={cn(isFullscreen && "text-lg p-3")}>
+              <TooltipContent >
                 {getTooltipContent("Settings")}
               </TooltipContent>
             </Tooltip>
@@ -718,13 +716,13 @@ export function EnhancedVideoControls({
                   aria-pressed={isFullscreen}
                 >
                   {isFullscreen ? (
-                    <Minimize className={cn("h-5 w-5", isFullscreen && "h-7 w-7")} />
+                    <Minimize className={cn("h-5 w-5")} />
                   ) : (
-                    <Maximize className={cn("h-5 w-5", isFullscreen && "h-7 w-7")} />
+                    <Maximize className={cn("h-5 w-5")} />
                   )}
                 </Button>
               </TooltipTrigger>
-              <TooltipContent className={cn(isFullscreen && "text-lg p-3")}>
+              <TooltipContent >
                 {getTooltipContent(isFullscreen ? "Exit fullscreen" : "Enter fullscreen")}
               </TooltipContent>
             </Tooltip>

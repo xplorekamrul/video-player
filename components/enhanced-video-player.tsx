@@ -1447,15 +1447,15 @@ export function EnhancedVideoPlayer({
                   {title}
                </h3>
                <div className="flex items-center space-x-2 mt-1">
-                  <span className="text-xs text-white/70 bg-black/50 px-2 py-1 rounded">Enhanced Playback</span>
+                  {/* <span className="text-xs text-white/70 bg-black/50 px-2 py-1 rounded">Enhanced Playback</span> */}
                   {playlist.length > 0 && (
                      <span className="text-xs text-white/70 bg-black/50 px-2 py-1 rounded">
                         {currentIndex + 1} of {playlist.length}
                      </span>
                   )}
-                  {isRealFullscreen && (
+                  {/* {isRealFullscreen && (
                      <span className="text-xs text-white/70 bg-black/50 px-2 py-1 rounded">Fullscreen Mode</span>
-                  )}
+                  )} */}
                </div>
             </div>
          )}

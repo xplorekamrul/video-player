@@ -10,11 +10,9 @@ const nextConfig = {
     unoptimized: true,
   },
 
-  // Add allowed origins for development
-  allowedDevOrigins: [
-    'http://localhost:3000',    // Localhost
-    'http://192.168.68.74:3000' // তোমার local network IP
-  ],
+   experimental: {
+    allowedDevOrigins: ['192.168.68.129'], 
+  },
 };
 
 export default nextConfig;
