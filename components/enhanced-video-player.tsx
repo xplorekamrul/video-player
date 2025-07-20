@@ -300,18 +300,31 @@ export function EnhancedVideoPlayer({
       isEnabled: !isSettingsOpen && !isPlaylistOpen,
    })
 
-   useEffect(() => {
-      const savedPosition = getSavedPosition()
-      if (savedPosition && savedPosition.currentTime > 10) {
-         setShowRestoreNotification(true)
-         setRestoredTime(savedPosition.currentTime)
-         onPositionRestore?.(savedPosition.currentTime)
+  useEffect(() => {
+  const savedPosition = getSavedPosition()
+  if (savedPosition && savedPosition.currentTime > 10) {
+    const video = videoRef.current
+    if (video) {
+      const handleMetadataLoaded = () => {
+        video.currentTime = savedPosition.currentTime // Directly set the time
+        setShowRestoreNotification(true)
+        setRestoredTime(savedPosition.currentTime)
+        onPositionRestore?.(savedPosition.currentTime)
 
-         setTimeout(() => {
-            setShowRestoreNotification(false)
-         }, 6000)
+        setTimeout(() => setShowRestoreNotification(false), 6000)
+        video.removeEventListener("loadedmetadata", handleMetadataLoaded)
       }
-   }, [getSavedPosition, onPositionRestore])
+
+      // If metadata is already loaded, seek immediately
+      if (video.readyState >= 1) {
+        handleMetadataLoaded()
+      } else {
+        video.addEventListener("loadedmetadata", handleMetadataLoaded)
+      }
+    }
+  }
+}, [getSavedPosition, onPositionRestore])
+
 
    const formatTime = useCallback((time: number) => {
       if (!isFinite(time)) return "0:00"

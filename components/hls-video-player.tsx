@@ -261,18 +261,19 @@ export function HLSVideoPlayer({
   })
 
   // Show restore notification
-  useEffect(() => {
-    const savedPosition = getSavedPosition()
-    if (savedPosition && savedPosition.currentTime > 10) {
+ useEffect(() => {
+   const savedPosition = getSavedPosition()
+   if (savedPosition && savedPosition.currentTime > 10) {
+      seek(savedPosition.currentTime) // <-- Fix: Seek to the saved time
       setShowRestoreNotification(true)
       setRestoredTime(savedPosition.currentTime)
       onPositionRestore?.(savedPosition.currentTime)
 
       setTimeout(() => {
-        setShowRestoreNotification(false)
+         setShowRestoreNotification(false)
       }, 6000)
-    }
-  }, [getSavedPosition, onPositionRestore])
+   }
+}, [getSavedPosition, seek, onPositionRestore])
 
   // Format time helper
   const formatTime = useCallback((time: number) => {
