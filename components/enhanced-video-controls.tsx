@@ -347,7 +347,7 @@ export function EnhancedVideoControls({
             <div
               className={cn(
                 "absolute top-1/2 -translate-y-1/2 bg-red-500 rounded-full transition-all duration-200 ease-out cursor-grab active:cursor-grabbing",
-                isFullscreen ? "w-6 h-6" : "w-4 h-4",
+                 "w-4 h-4",
                 "opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-100"
               )}
               style={{ left: `calc(${progressPercentage}% - ${isFullscreen ? "12px" : "8px"})` }}
@@ -382,7 +382,7 @@ export function EnhancedVideoControls({
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  size={isFullscreen ? "lg" : "sm"}
+                  size={isFullscreen ? "sm" : "sm"}
                   onClick={(e) => {
                     e.stopPropagation()
                     onSkipBackward()
@@ -423,7 +423,7 @@ export function EnhancedVideoControls({
                 <TooltipTrigger asChild>
                   <Button
                     variant="ghost"
-                    size={isFullscreen ? "lg" : "sm"}
+                    size={isFullscreen ? "sm" : "sm"}
                     onClick={handlePreviousVideo}
                     disabled={!canGoPrevious || isNavigating}
                     className={cn(
@@ -474,7 +474,7 @@ export function EnhancedVideoControls({
                 <TooltipTrigger asChild>
                   <Button
                     variant="ghost"
-                    size={isFullscreen ? "lg" : "sm"}
+                    size={isFullscreen ? "sm" : "sm"}
                     onClick={handleNextVideo}
                     disabled={!canGoNext || isNavigating}
                     className={cn(
@@ -504,7 +504,7 @@ export function EnhancedVideoControls({
                   <TooltipTrigger asChild>
                     <Button
                       variant="ghost"
-                      size={isFullscreen ? "lg" : "sm"}
+                      size={isFullscreen ? "sm" : "sm"}
                       onClick={handleMuteToggleWithOverlay}
                       className="text-white hover:bg-white/20 transition-all duration-200"
                       aria-label={isMuted ? "Unmute" : "Mute"}
@@ -570,7 +570,7 @@ export function EnhancedVideoControls({
                   <TooltipTrigger asChild>
                     <Button
                       variant="ghost"
-                      size={isFullscreen ? "lg" : "sm"}
+                      size={isFullscreen ? "sm" : "sm"}
                       className="text-white hover:bg-white/20 transition-all duration-200"
                       aria-label="Brightness control"
                       onClick={handleControlClick}
@@ -616,7 +616,7 @@ export function EnhancedVideoControls({
                 <TooltipTrigger asChild>
                   <Button
                     variant="ghost"
-                    size={isFullscreen ? "lg" : "sm"}
+                    size={isFullscreen ? "sm" : "sm"}
                     onClick={(e) => {
                       e.stopPropagation()
                       onOpenPlaylist()
@@ -637,7 +637,7 @@ export function EnhancedVideoControls({
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  size={isFullscreen ? "lg" : "sm"}
+                  size={isFullscreen ? "sm" : "sm"}
                   onClick={(e) => {
                     e.stopPropagation()
                     onTogglePiP()
@@ -662,7 +662,7 @@ export function EnhancedVideoControls({
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  size={isFullscreen ? "lg" : "sm"}
+                  size={isFullscreen ? "sm" : "sm"}
                   onClick={(e) => {
                     e.stopPropagation()
                     onToggleTheater()
@@ -683,7 +683,7 @@ export function EnhancedVideoControls({
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  size={isFullscreen ? "lg" : "sm"}
+                  size={isFullscreen ? "sm" : "sm"}
                   onClick={(e) => {
                     e.stopPropagation()
                     onOpenSettings()
@@ -706,7 +706,7 @@ export function EnhancedVideoControls({
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  size={isFullscreen ? "lg" : "sm"}
+                  size={isFullscreen ? "sm" : "sm"}
                   onClick={(e) => {
                     e.stopPropagation()
                     onToggleFullscreen()
